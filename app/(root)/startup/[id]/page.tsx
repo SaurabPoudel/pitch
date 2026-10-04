@@ -28,10 +28,13 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         <p className="sub-heading !max-w-5xl"> {post.description}</p>
       </section>
       <section className="section_container">
-        <img
-          src={post.image || ""}
-          alt={post.title || ""}
+        <Image
+          src={post.image || "https://placehold.co/1200x600"}
+          alt={post.title || "startup image"}
+          width={1200}
+          height={600}
           className="w-full h-auto rounded-xl"
+          priority
         />
         <div className="space-y-5 mt-10 max-w-4xl mx-auto">
           <div className="flex-between gap-5">

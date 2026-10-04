@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
@@ -10,14 +9,6 @@ const nextConfig: NextConfig = {
         hostname: "*",
       },
     ],
-  },
-  experimental: {
-    after: true,
-  },
-  devIndicators: {
-    appIsrStatus: true,
-    buildActivity: true,
-    buildActivityPosition: "bottom-right",
   },
 };
 
