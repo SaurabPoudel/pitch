@@ -8,7 +8,7 @@ import { AUTHOR_BY_GITHUB_ID_QUERY } from "@/sanity/lib/queries";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [GitHub],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, profile }) {
       // Check if the user exists in Sanity
       const existingUser = await client.fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
         id: profile?.id,
@@ -47,8 +47,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
-      // Pass the profile id from the token to the session
-      Object.assign(session, { id: token.id });
+      // Pass the Sanity author document ID to the session user.
+      if (typeof token.id === "string") {
+        session.user.id = token.id;
+      }
       return session;
     },
   },
