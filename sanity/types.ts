@@ -12,7 +12,54 @@
  * ---------------------------------------------------------------------------------
  */
 
-// Source: schema.json
+export declare const internalGroqTypeReferenceTo: unique symbol;
+
+// Source: sanity/extract.json
+export type AuthorReference = {
+  _ref: string;
+  _type: "reference";
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: "author";
+};
+
+export type Startup = {
+  _id: string;
+  _type: "startup";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  author?: AuthorReference;
+  views?: number;
+  description?: string;
+  category?: string;
+  image?: string;
+  pitch?: Markdown;
+};
+
+export type Markdown = string;
+
+export type Slug = {
+  _type: "slug";
+  current?: string;
+  source?: string;
+};
+
+export type Author = {
+  _id: string;
+  _type: "author";
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  id?: number;
+  name?: string;
+  username?: string;
+  email?: string;
+  image?: string;
+  bio?: string;
+};
+
 export type SanityImagePaletteSwatch = {
   _type: "sanity.imagePaletteSwatch";
   background?: string;
@@ -37,6 +84,18 @@ export type SanityImageDimensions = {
   height?: number;
   width?: number;
   aspectRatio?: number;
+};
+
+export type SanityImageMetadata = {
+  _type: "sanity.imageMetadata";
+  location?: Geopoint;
+  dimensions?: SanityImageDimensions;
+  palette?: SanityImagePalette;
+  lqip?: string;
+  blurHash?: string;
+  thumbHash?: string;
+  hasAlpha?: boolean;
+  isOpaque?: boolean;
 };
 
 export type SanityImageHotspot = {
@@ -77,6 +136,13 @@ export type SanityFileAsset = {
   source?: SanityAssetSourceData;
 };
 
+export type SanityAssetSourceData = {
+  _type: "sanity.assetSourceData";
+  name?: string;
+  id?: string;
+  url?: string;
+};
+
 export type SanityImageAsset = {
   _id: string;
   _type: "sanity.imageAsset";
@@ -100,17 +166,6 @@ export type SanityImageAsset = {
   source?: SanityAssetSourceData;
 };
 
-export type SanityImageMetadata = {
-  _type: "sanity.imageMetadata";
-  location?: Geopoint;
-  dimensions?: SanityImageDimensions;
-  palette?: SanityImagePalette;
-  lqip?: string;
-  blurHash?: string;
-  hasAlpha?: boolean;
-  isOpaque?: boolean;
-};
-
 export type Geopoint = {
   _type: "geopoint";
   lat?: number;
@@ -118,82 +173,27 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type SanityAssetSourceData = {
-  _type: "sanity.assetSourceData";
-  name?: string;
-  id?: string;
-  url?: string;
-};
+export type AllSanitySchemaTypes =
+  | AuthorReference
+  | Startup
+  | Markdown
+  | Slug
+  | Author
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageMetadata
+  | SanityImageHotspot
+  | SanityImageCrop
+  | SanityFileAsset
+  | SanityAssetSourceData
+  | SanityImageAsset
+  | Geopoint;
 
-export type Startup = {
-  _id: string;
-  _type: "startup";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  author?: {
-    _ref: string;
-    _type: "reference";
-    _weak?: boolean;
-    [internalGroqTypeReferenceTo]?: "author";
-  };
-  views?: number;
-  description?: string;
-  category?: string;
-  image?: string;
-  pitch?: string;
-};
-
-export type Slug = {
-  _type: "slug";
-  current?: string;
-  source?: string;
-};
-
-export type Author = {
-  _id: string;
-  _type: "author";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  id?: number;
-  name?: string;
-  username?: string;
-  email?: string;
-  image?: string;
-  bio?: string;
-};
-
-export type Markdown = string;
-
-export type AllSanitySchemaTypes = SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageHotspot | SanityImageCrop | SanityFileAsset | SanityImageAsset | SanityImageMetadata | Geopoint | SanityAssetSourceData | Startup | Slug | Author | Markdown;
-export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: sanity/lib/queries.ts
 // Variable: STARTUPS_QUERY
-// Query: *[_type == "startup" && defined(slug.current) && !defined($search) || title match $search || title match $search || category match $search || author->name match $search] | order(_createdAt desc) {        _id,        title,        slug,        _createdAt,        author ->{            _id, name, image, bio        },        views,        description,        category,        image    }
-export type STARTUPS_QUERYResult = Array<{
-  _id: string;
-  title: null;
-  slug: null;
-  _createdAt: string;
-  author: null;
-  views: null;
-  description: null;
-  category: null;
-  image: string | null;
-} | {
-  _id: string;
-  title: string | null;
-  slug: null;
-  _createdAt: string;
-  author: null;
-  views: null;
-  description: string | null;
-  category: null;
-  image: null;
-} | {
+// Query: *[_type == "startup" && defined(slug.current) && (!defined($search) || title match $search || category match $search || author->name match $search)] | order(_createdAt desc) {        _id,        title,        slug,        _createdAt,        author ->{            _id, name, image, bio        },        views,        description,        category,        image    }
+export type STARTUPS_QUERY_RESULT = Array<{
   _id: string;
   title: string | null;
   slug: Slug | null;
@@ -209,9 +209,11 @@ export type STARTUPS_QUERYResult = Array<{
   category: string | null;
   image: string | null;
 }>;
+
+// Source: sanity/lib/queries.ts
 // Variable: STARTUPS_BY_ID_QUERY
 // Query: *[_type == "startup" && _id == $id][0] {    _id,    title,    slug,    _createdAt,    author ->{        _id, name, image, bio    },    views,    description,    category,    image,    pitch}
-export type STARTUPS_BY_ID_QUERYResult = {
+export type STARTUPS_BY_ID_QUERY_RESULT = {
   _id: string;
   title: string | null;
   slug: Slug | null;
@@ -226,21 +228,26 @@ export type STARTUPS_BY_ID_QUERYResult = {
   description: string | null;
   category: string | null;
   image: string | null;
-  pitch: string | null;
+  pitch: Markdown | null;
 } | null;
+
+// Source: sanity/lib/queries.ts
 // Variable: STARTUP_VIEWS_QUERY
 // Query: *[_type == "startup" && _id == $id][0] {    _id,    views,}
-export type STARTUP_VIEWS_QUERYResult = {
+export type STARTUP_VIEWS_QUERY_RESULT = {
   _id: string;
   views: number | null;
 } | null;
 
 // Query TypeMap
-import "@sanity/client";
-declare module "@sanity/client" {
+declare global {
   interface SanityQueries {
-    "*[_type == \"startup\" && defined(slug.current) && !defined($search) || title match $search || title match $search || category match $search || author->name match $search] | order(_createdAt desc) {\n        _id,\n        title,\n        slug,\n        _createdAt,\n        author ->{\n            _id, name, image, bio\n        },\n        views,\n        description,\n        category,\n        image\n    }": STARTUPS_QUERYResult;
-    "*[_type == \"startup\" && _id == $id][0] {\n    _id,\n    title,\n    slug,\n    _createdAt,\n    author ->{\n        _id, name, image, bio\n    },\n    views,\n    description,\n    category,\n    image,\n    pitch\n}": STARTUPS_BY_ID_QUERYResult;
-    "\n    *[_type == \"startup\" && _id == $id][0] {\n    _id,\n    views,\n}\n    ": STARTUP_VIEWS_QUERYResult;
+    '*[_type == "startup" && defined(slug.current) && (!defined($search) || title match $search || category match $search || author->name match $search)] | order(_createdAt desc) {\n        _id,\n        title,\n        slug,\n        _createdAt,\n        author ->{\n            _id, name, image, bio\n        },\n        views,\n        description,\n        category,\n        image\n    }': STARTUPS_QUERY_RESULT;
+    '*[_type == "startup" && _id == $id][0] {\n    _id,\n    title,\n    slug,\n    _createdAt,\n    author ->{\n        _id, name, image, bio\n    },\n    views,\n    description,\n    category,\n    image,\n    pitch\n}': STARTUPS_BY_ID_QUERY_RESULT;
+    '\n    *[_type == "startup" && _id == $id][0] {\n    _id,\n    views,\n}\n    ': STARTUP_VIEWS_QUERY_RESULT;
   }
+}
+// Lets @sanity/client releases that predate the global registry read it too
+declare module "@sanity/client" {
+  interface SanityQueries extends globalThis.SanityQueries {}
 }
