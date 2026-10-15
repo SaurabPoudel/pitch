@@ -96,7 +96,7 @@ const StartupForm = () => {
           name="title"
           className="startup-form_input"
           required
-          placeholder="JSM Academy Masterclasss"
+          placeholder="Enter the title of your startup idea"
         />
 
         {errors.title && <p className="startup-form_error">{errors.title}</p>}
